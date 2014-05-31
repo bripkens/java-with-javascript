@@ -1,6 +1,7 @@
 package de.bripkens.nashorn;
 
 import jdk.nashorn.internal.objects.NativeArray;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -28,6 +29,11 @@ public class EventLoopTest extends AbstractNashornTest {
 
     engine.eval(slurp("/event_loop.js"));
     engine.getBindings(ScriptContext.ENGINE_SCOPE).put("output", output);
+  }
+
+  @After
+  public void after() throws ScriptException {
+    engine.eval("shutdown()");
   }
 
   @Test
@@ -63,6 +69,25 @@ public class EventLoopTest extends AbstractNashornTest {
     assertThat(arr.get(2), is(30));
     assertThat(arr.get(3), is(40));
     assertThat(arr.get(4), is(50));
+  }
+
+  @Test
+  public void shouldClearTimeout() throws Exception {
+    engine.eval(slurp("/shouldClearTimeout.js"));
+
+    Object numbers = output.get("numbers");
+    assertThat(numbers, is(instanceOf(NativeArray.class)));
+
+    NativeArray arr = (NativeArray) numbers;
+    assertThat(arr.getLength(), is(2L)); // take care - long value!
+    assertThat(arr.get(0), is(1));
+    assertThat(arr.get(1), is(2));
+  }
+
+  @Test
+  public void shouldSupportIntervals() throws Exception {
+    engine.eval(slurp("/shouldSupportIntervals.js"));
+    assertThat((double) output.get("iterationCount"), is(5.0));
   }
 
 }

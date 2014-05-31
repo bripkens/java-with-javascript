@@ -2,37 +2,33 @@
   'use strict';
 
   var Timer = Java.type('java.util.Timer');
+  var Phaser = Java.type('java.util.concurrent.Phaser');
   var CountDownLatch = Java.type('java.util.concurrent.CountDownLatch');
   var TimeUnit = Java.type('java.util.concurrent.TimeUnit');
 
   var timer = new Timer('jsEventLoop', false);
-  var countDownLatch = new CountDownLatch(1);
-
-  var taskCount = 0;
+  var phaser = new Phaser();
 
   var onTaskFinished = function() {
-    taskCount--;
-
-    if (taskCount === 0) {
-      timer.cancel();
-      countDownLatch.countDown();
-    }
+    phaser.arriveAndDeregister();
   };
 
-  context.setTimeout = function(fn, millis /* [, args] */) {
+  context.setTimeout = function(fn, millis /* [, args...] */) {
     var args = [].slice.call(arguments, 2, arguments.length);
 
-    taskCount++;
+    var phase = phaser.register();
     var canceled = false;
     timer.schedule(function() {
-      if (!canceled) {
-        try {
-          fn.apply(context, args);
-        } catch (e) {
-          print(e);
-        } finally {
-          onTaskFinished();
-        }
+      if (canceled) {
+        return;
+      }
+
+      try {
+        fn.apply(context, args);
+      } catch (e) {
+        print(e);
+      } finally {
+        onTaskFinished();
       }
     }, millis);
 
@@ -46,7 +42,7 @@
     cancel();
   };
 
-  context.setInterval = function(fn, delay /* [, args] */) {
+  context.setInterval = function(fn, delay /* [, args...] */) {
     var args = [].slice.call(arguments, 2, arguments.length);
 
     var cancel = null;
@@ -70,8 +66,23 @@
     if (!waitTimeMillis) {
       waitTimeMillis = 60 * 1000;
     }
+
+    phaser.register();
     setTimeout(fn, 0);
-    countDownLatch.await(waitTimeMillis, TimeUnit.MILLISECONDS);
+
+    // timeout is handled via TimeoutException. This is good enough for us.
+    phaser.awaitAdvanceInterruptibly(phaser.arrive(),
+      waitTimeMillis,
+      TimeUnit.MILLISECONDS);
+
+    // a new phase will have started, so we need to arrive and deregister
+    // to make sure that following executions of main(...) will work as well.
+    phaser.arriveAndDeregister();
+  };
+
+  context.shutdown = function() {
+    timer.cancel();
+    phaser.forceTermination();
   };
 
 })(this);
