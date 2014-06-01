@@ -92,53 +92,53 @@
     timer.cancel();
     phaser.forceTermination();
   };
-  
+
   context.XMLHttpRequest = function() {
     var method, url, async, user, password, headers = {};
 
-  	this.onreadystatechange = function(){};
-  	this.readyState = 0;
-  	this.response = null;
-  	this.responseText = null;
-  	this.responseType = '';
-  	this.status = null;
-  	this.statusText = null;
-  	this.timeout = 0; // no timeout by default
-  	this.ontimeout = function(){};
-  	this.withCredentials = false;
-	
-  	this.abort = function() {
-  	  
-  	};
-  	
-  	this.getAllResponseHeaders = function() {
-  	  
-  	};
-  	
-  	this.getResponseHeader = function(key) {
-  	  
-  	};
+    this.onreadystatechange = function(){};
+    this.readyState = 0;
+    this.response = null;
+    this.responseText = null;
+    this.responseType = '';
+    this.status = null;
+    this.statusText = null;
+    this.timeout = 0; // no timeout by default
+    this.ontimeout = function(){};
+    this.withCredentials = false;
+
+    this.abort = function() {
+
+    };
+
+    this.getAllResponseHeaders = function() {
+
+    };
+
+    this.getResponseHeader = function(key) {
+
+    };
 
     this.setRequestHeader = function(key, value) {
       headers[key] = value;
     };
-  	
-  	this.open = function(_method, _url, _async, _user, _password) {
+
+    this.open = function(_method, _url, _async, _user, _password) {
       this.readyState = 1;
 
       method = _method;
       url = _url;
 
       async = _async === false ? false : true;
-  	  
-  	  user = _user || '';
-  	  password = _password || '';
+
+      user = _user || '';
+      password = _password || '';
 
       setTimeout(this.onreadystatechange, 0);
-  	};
-  	
-  	this.send = function(data) {
-  	  phaser.register();
+    };
+
+    this.send = function(data) {
+      phaser.register();
 
       var that = this;
       var client = new AsyncHttpClient();
@@ -171,7 +171,7 @@
           phaser.arriveAndDeregister();
         }
       }));
-  	};
+    };
   };
 
 })(this);
