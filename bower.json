@@ -1,0 +1,23 @@
+{
+  "name": "nashorn-examples",
+  "version": "0.1.0-SNAPSHOT",
+  "homepage": "https://github.com/bripkens/java-with-javascript",
+  "authors": [
+    "Ben Ripkens <bripkens.dev@gmail.com>"
+  ],
+  "moduleType": [
+    "globals"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "zxcvbn": "dropbox/zxcvbn"
+  }
+}
