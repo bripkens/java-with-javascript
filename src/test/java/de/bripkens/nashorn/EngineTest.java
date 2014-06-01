@@ -1,20 +1,27 @@
 package de.bripkens.nashorn;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+
+import javax.script.Bindings;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
+
 import org.hamcrest.Matchers;
 import org.junit.Test;
-
-import javax.script.*;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 /**
  * @author Ben Ripkens <ben.ripkens@codecentric.de>
  */
+@SuppressWarnings("restriction")
 public class EngineTest extends AbstractNashornTest {
 
   @Test
@@ -60,7 +67,7 @@ public class EngineTest extends AbstractNashornTest {
 
   @Test
   public void shouldSupportCompilation() {
-    assertThat(engine, is(Matchers.<ScriptEngine>instanceOf(Compilable.class)));
+    assertThat(engine, is(Matchers.<ScriptEngine> instanceOf(Compilable.class)));
   }
 
   @Test
@@ -71,6 +78,5 @@ public class EngineTest extends AbstractNashornTest {
     Object result = compiledScript.eval();
     assertThat(result, is(instanceOf(String.class)));
   }
-
 
 }

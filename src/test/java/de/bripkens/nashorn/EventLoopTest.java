@@ -1,26 +1,33 @@
 package de.bripkens.nashorn;
 
-import jdk.nashorn.internal.objects.NativeArray;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
-import javax.script.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptException;
+
+import jdk.nashorn.internal.objects.NativeArray;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Ben Ripkens <ben.ripkens@codecentric.de>
  */
+@SuppressWarnings("restriction")
 public class EventLoopTest extends AbstractNashornTest {
 
   private Map<String, Object> output;
 
+  @Override
   @Before
   public void before() throws ScriptException {
     super.before();
@@ -90,4 +97,40 @@ public class EventLoopTest extends AbstractNashornTest {
     assertThat((double) output.get("iterationCount"), is(5.0));
   }
 
+  @Test
+  public void shouldSupportMultipleMainCallsInSameEngine() throws Exception {
+    engine.eval(join(//
+        "main(function() {", //
+        "  output.numbers = [];", //
+        "  output.numbers.push('a');", //
+        "});"//
+    ));
+
+    NativeArray arr = (NativeArray) output.get("numbers");
+    assertThat(arr.getLength(), is(1L));
+    assertThat(arr.get(0), is("a"));
+
+    engine.eval(join(//
+        "main(function() {", //
+        "  output.numbers.push('b');", //
+        "});"));
+
+    assertThat(arr.getLength(), is(2L));
+    assertThat(arr.get(0), is("a"));
+    assertThat(arr.get(1), is("b"));
+  }
+
+  @Test
+  public void shouldHandleNestedAsyncOperations() throws Exception {
+    engine.eval(join(//
+        "main(function() {", //
+        "  setTimeout(function() {", //
+        "    setTimeout(function() {", //
+        "      output.val = 'done';", //
+        "    }, 20);", //
+        "  }, 20);", "});"//
+        ));
+
+    assertThat(output.get("val"), is("done"));
+  }
 }

@@ -3,7 +3,6 @@
 
   var Timer = Java.type('java.util.Timer');
   var Phaser = Java.type('java.util.concurrent.Phaser');
-  var CountDownLatch = Java.type('java.util.concurrent.CountDownLatch');
   var TimeUnit = Java.type('java.util.concurrent.TimeUnit');
 
   var timer = new Timer('jsEventLoop', false);
@@ -67,6 +66,14 @@
       waitTimeMillis = 60 * 1000;
     }
 
+    if (phaser.isTerminated()) {
+      phaser = new Phaser();
+    }
+
+    // we register the main(...) function with the phaser so that we
+    // can be notified of all cases. If we wouldn't do this, we would have a
+    // race condition as `fn` could be finished before we call `await(...)`
+    // on the phaser.
     phaser.register();
     setTimeout(fn, 0);
 

@@ -37,4 +37,17 @@ public abstract class AbstractNashornTest {
     }
   }
 
+  public static String join(String... parts) {
+    StringBuilder builder = new StringBuilder();
+
+    for (int i = 0; i < parts.length; i++) {
+      if (i > 0) {
+        builder.append('\n');
+      }
+      builder.append(parts[i]);
+    }
+
+    return builder.toString();
+  }
+
 }
