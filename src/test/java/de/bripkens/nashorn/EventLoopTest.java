@@ -23,25 +23,7 @@ import org.junit.Test;
  * @author Ben Ripkens <ben.ripkens@codecentric.de>
  */
 @SuppressWarnings("restriction")
-public class EventLoopTest extends AbstractNashornTest {
-
-  private Map<String, Object> output;
-
-  @Override
-  @Before
-  public void before() throws ScriptException {
-    super.before();
-
-    output = new HashMap<>();
-
-    engine.eval(slurp("/event_loop.js"));
-    engine.getBindings(ScriptContext.ENGINE_SCOPE).put("output", output);
-  }
-
-  @After
-  public void after() throws ScriptException {
-    engine.eval("shutdown()");
-  }
+public class EventLoopTest extends AbstractEventLoopTest {
 
   @Test
   public void shouldRegisterMissingSetXFunctions() {

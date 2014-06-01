@@ -4,6 +4,7 @@
   var Timer = Java.type('java.util.Timer');
   var Phaser = Java.type('java.util.concurrent.Phaser');
   var TimeUnit = Java.type('java.util.concurrent.TimeUnit');
+  var AsyncHttpClient = Java.type('com.ning.http.client.AsyncHttpClient');
 
   var timer = new Timer('jsEventLoop', false);
   var phaser = new Phaser();
@@ -90,6 +91,87 @@
   context.shutdown = function() {
     timer.cancel();
     phaser.forceTermination();
+  };
+  
+  context.XMLHttpRequest = function() {
+    var method, url, async, user, password, headers = {};
+
+  	this.onreadystatechange = function(){};
+  	this.readyState = 0;
+  	this.response = null;
+  	this.responseText = null;
+  	this.responseType = '';
+  	this.status = null;
+  	this.statusText = null;
+  	this.timeout = 0; // no timeout by default
+  	this.ontimeout = function(){};
+  	this.withCredentials = false;
+	
+  	this.abort = function() {
+  	  
+  	};
+  	
+  	this.getAllResponseHeaders = function() {
+  	  
+  	};
+  	
+  	this.getResponseHeader = function(key) {
+  	  
+  	};
+
+    this.setRequestHeader = function(key, value) {
+      headers[key] = value;
+    };
+  	
+  	this.open = function(_method, _url, _async, _user, _password) {
+      this.readyState = 1;
+
+      method = _method;
+      url = _url;
+
+      async = _async === false ? false : true;
+  	  
+  	  user = _user || '';
+  	  password = _password || '';
+
+      setTimeout(this.onreadystatechange, 0);
+  	};
+  	
+  	this.send = function(data) {
+  	  phaser.register();
+
+      var that = this;
+      var client = new AsyncHttpClient();
+
+      var methodPascalCase = method.replace(/^([a-z])(.*)$/i, function(_, firstChar, rest) {
+        return firstChar.toUpperCase() + rest.toLowerCase()
+      });
+      var requestBuilder = client['prepare' + methodPascalCase](url);
+
+      Object.keys(headers)
+        .forEach(function(header) {
+          var value = headers[header];
+          requestBuilder.addHeader(header, value);
+        });
+
+      // TODO configure timeouts on AsyncHttpClientConfig
+      // TODO handle errors
+      requestBuilder.execute(new com.ning.http.client.AsyncCompletionHandler({
+        onCompleted: function(response) {
+          that.readyState = 4;
+          that.responseText = that.response = response.getResponseBody('UTF-8');
+          that.status = response.getStatusCode();
+          that.statusText = response.getStatusCode() + ' ' + response.getStatusText();
+
+          if (that.responseType === 'json') {
+            that.response = JSON.parse(that.response);
+          }
+
+          context.setTimeout(that.onreadystatechange, 0);
+          phaser.arriveAndDeregister();
+        }
+      }));
+  	};
   };
 
 })(this);

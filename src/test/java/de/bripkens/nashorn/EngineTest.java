@@ -59,6 +59,7 @@ public class EngineTest extends AbstractNashornTest {
     Bindings bindings = context.getBindings(ScriptContext.ENGINE_SCOPE);
     assertThat(bindings.get("Math"), is(not(nullValue())));
     assertThat(bindings.get("Object"), is(not(nullValue())));
+    assertThat(bindings.get("JSON"), is(not(nullValue())));
 
     // Danger: no setTimeout etc. available!
     assertThat(bindings.get("setTimeout"), is(nullValue()));

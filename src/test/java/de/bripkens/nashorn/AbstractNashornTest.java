@@ -3,11 +3,14 @@ package de.bripkens.nashorn;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Ben Ripkens <ben.ripkens@codecentric.de>
@@ -16,9 +19,13 @@ public abstract class AbstractNashornTest {
 
   protected ScriptEngine engine;
 
+  protected HashMap<String, Object> output;
+
   @Before
   public void before() throws ScriptException {
     engine = newEngine();
+    output = new HashMap<>();
+    engine.getBindings(ScriptContext.ENGINE_SCOPE).put("output", output);
   }
 
   public ScriptEngine newEngine() {
