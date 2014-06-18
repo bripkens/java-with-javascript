@@ -80,4 +80,9 @@ public class EngineTest extends AbstractNashornTest {
     assertThat(result, is(instanceOf(String.class)));
   }
 
+  @Test
+  public void shouldPrintHelloWorld() throws Exception {
+    engine.eval("print('Hello World');");
+  }
+
 }

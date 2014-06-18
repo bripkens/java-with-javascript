@@ -13,7 +13,12 @@
     phaser.arriveAndDeregister();
   };
 
+  // simulate the global window object which is the same as the global scope
+  // when running in browsers
+  context.window = context;
+
   context.setTimeout = function(fn, millis /* [, args...] */) {
+    print("SetTimeout!");
     var args = [].slice.call(arguments, 2, arguments.length);
 
     var phase = phaser.register();
