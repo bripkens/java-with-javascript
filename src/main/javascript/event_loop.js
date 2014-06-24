@@ -18,7 +18,6 @@
   context.window = context;
 
   context.setTimeout = function(fn, millis /* [, args...] */) {
-    print("SetTimeout!");
     var args = [].slice.call(arguments, 2, arguments.length);
 
     var phase = phaser.register();

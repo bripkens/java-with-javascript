@@ -1,22 +1,19 @@
 package de.bripkens.nashorn;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
 
-import javax.script.Bindings;
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineFactory;
+import javax.script.*;
 
+import com.google.common.collect.Lists;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * @author Ben Ripkens <ben.ripkens@codecentric.de>
@@ -85,4 +82,25 @@ public class EngineTest extends AbstractNashornTest {
     engine.eval("print('Hello World');");
   }
 
+  @Test
+  public void shouldHaveLimitedNumberOfGlobals() {
+    Bindings bindings = engine.getContext().getBindings(ScriptContext.ENGINE_SCOPE);
+
+    ArrayList<String> keys = Lists.newArrayList(bindings.keySet());
+    Collections.sort(keys);
+
+    for (String key : keys) {
+      System.out.println(key);
+    }
+  }
+
+  @Test
+  public void shouldNotExit() {
+    try {
+      engine.eval("System.exit(1);");
+      fail("Shouldn't get here.");
+    } catch (ScriptException ex) {
+      assertThat(ex.getMessage(), containsString("\"System\" is not defined"));
+    }
+  }
 }
